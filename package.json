@@ -1,0 +1,37 @@
+{
+  "name": "fitness-webdev",
+  "version": "1.0.0",
+  "description": "FITRA - FITNESS WEB DEV PROJECT\r https://codepen.io/isladjan/pen/abdyPBw\r https://isladjan.com/",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudQuest7/Fitness.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cloudQuest7/Fitness/issues"
+  },
+  "homepage": "https://github.com/cloudQuest7/Fitness#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.20.3",
+    "canvas": "^3.1.0",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "fs-extra": "^11.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2"
+  }
+}

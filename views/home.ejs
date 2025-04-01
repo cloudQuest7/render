@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Fitness Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #333;
+        }
+        .fixed-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .card-icon {
+            font-size: 24px;
+            color: #6480ee;
+        }
+        .hover-effect:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .transition {
+            transition: all 0.3s ease;
+        }
+        .rounded-progress {
+            border-radius: 9999px;
+        }
+        .sidebar-icon {
+            margin-bottom: 24px;
+            padding-left: 8px;
+        } 
+    </style>
+</head>
+<body class="flex">
+    <!-- Replace the existing sidebar with the partial -->
+    <%- include('partials/sidebar', { activePage: 'home', user: user }) %>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6 ml-15 md:ml-15 lg:ml-24 xl:ml-28">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-800">
+                    Good Morning, <%= user.username %>
+                </h1>
+                <p class="text-gray-500">
+                    Let's do some workout today...
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <select class="bg-gray-200 p-2 rounded" title="Select time period">
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                </select>
+                <i class="fas fa-search text-xl text-gray-800"></i>
+                <img alt="User Avatar" class="rounded-full border border-gray-300" src="https://placehold.co/40x40"/>
+            </div>
+        </div>
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="card transition">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-tint card-icon"></i>
+                    <div>
+                        <p class="text-gray-500">Water liters</p>
+                        <p class="text-2xl font-semibold">1.2</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card transition">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-fire-alt card-icon"></i>
+                    <div>
+                        <p class="text-gray-500">Kilo Calories</p>
+                        <p class="text-2xl font-semibold">2.54</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card transition">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-heartbeat card-icon"></i>
+                    <div>
+                        <p class="text-gray-500">Beats per minute</p>
+                        <p class="text-2xl font-semibold">124</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card transition">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-moon card-icon"></i>
+                    <div>
+                        <p class="text-gray-500">Hours Sleeping</p>
+                        <p class="text-2xl font-semibold">13</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="card transition">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold">Workout Activity</h2>
+                        <div class="flex space-x-2">
+                            <span class="text-green-500">Online</span>
+                            <span class="text-gray-500">Offline</span>
+                        </div>
+                    </div>
+                    <img alt="Workout Activity Graph" src="/images/yg.jpg" class="w-1/2 mx-auto "/>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Subscription</h2>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Active Plan</p>
+                            <p class="font-semibold">Standard - Monthly</p>
+                        </div>
+                        <button class="bg-[#6C5CE7] text-white px-4 py-2 rounded transition hover:bg-[#5a4bcf]">Upgrade to Pro</button>
+                    </div>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Payment</h2>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-500">Renew by</p>
+                            <p class="font-semibold">22 December 2023</p>
+                            <p class="text-gray-500">Default Payment Method</p>
+                            <p class="font-semibold">Credit Card 0018</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="bg-[#6C5CE7] text-white px-4 py-2 rounded transition hover:bg-[#5a4bcf]">Pay Now</button>
+                            <button class="bg-gray-200 px-4 py-2 rounded transition hover:bg-gray-300">Change</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Offline Exercises</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-4">
+                            <img alt="Cardio Exercises" class="rounded shadow" src="https://placehold.co/100x100"/>
+                            <div>
+                                <p class="font-semibold">Cardio Exercises</p>
+                                <p class="text-gray-500">Boost your energy everyday at home</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <img alt="Single-leg stands" class="rounded shadow" src="https://placehold.co/100x100"/>
+                            <div>
+                                <p class="font-semibold">Single-leg stands</p>
+                                <p class="text-gray-500">Daily Exercises</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <div class="card transition">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <img alt="User Avatar" class="rounded-full shadow border border-gray-300" src="https://placehold.co/60x60"/>
+                        <div>
+                            <p class="font-semibold"><%= user.username %></p>
+                            <p class="text-gray-500 leading-relaxed">26 Years</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-500">Height</p>
+                            <p class="font-semibold">5.6 inch</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Weight</p>
+                            <p class="font-semibold">52 kg</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Gender</p>
+                            <p class="font-semibold">Female</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Attendance</h2>
+                    <div class="grid grid-cols-7 gap-2 text-center">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                        <div class="col-span-7 grid grid-cols-7 gap-2">
+                            <div class="text-gray-400">30</div>
+                            <div class="text-gray-400">31</div>
+                            <div>1</div>
+                            <div>2</div>
+                            <div>3</div>
+                            <div>4</div>
+                            <div>5</div>
+                            <div class="bg-green-200 rounded-full opacity-75">6</div>
+                            <div class="bg-green-200 rounded-full opacity-75">7</div>
+                            <div class="bg-green-200 rounded-full opacity-75">8</div>
+                            <div>9</div>
+                            <div>10</div>
+                            <div>11</div>
+                            <div>12</div>
+                            <div>13</div>
+                            <div>14</div>
+                            <div>15</div>
+                            <div>16</div>
+                            <div>17</div>
+                            <div>18</div>
+                            <div>19</div>
+                            <div>20</div>
+                            <div>21</div>
+                            <div>22</div>
+                            <div>23</div>
+                            <div>24</div>
+                            <div>25</div>
+                            <div>26</div>
+                            <div>27</div>
+                            <div>28</div>
+                            <div>29</div>
+                            <div>30</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Video Activity</h2>
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-gray-500">Total hours watched</p>
+                        <p class="font-semibold">78%</p>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-progress h-2">
+                        <div class="bg-[#6C5CE7] h-2 rounded-progress" style="width: 78%;"></div>
+                    </div>
+                </div>
+                <div class="card transition">
+                    <h2 class="text-lg font-semibold mb-4">Most Trending</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-center space-x-4 hover-effect transition">
+                            <img alt="Trending 1" class="rounded shadow" src="/images/meditation/blop.jpg"/>
+                            <div>
+                                <p class="font-semibold">12M</p>
+                                <p class="text-gray-500">Views</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="tElQRgkR0AXJ2XdZCwUVW";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+</body>
+</html>

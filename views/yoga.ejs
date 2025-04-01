@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Yoga Session - Fitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar', { 
+            user: user || {}, 
+            activePage: 'yoga' 
+        }) %>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-4 md:p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Yoga Session</h1>
+                <p class="text-gray-600">Your 7-day yoga journey starts here</p>
+            </div>
+
+            <!-- Weekly Progress -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">Week 1</h2>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">In Progress</span>
+                </div>
+                
+                <!-- Day Tabs -->
+                <div class="grid grid-cols-7 gap-4 mb-8">
+                    <% const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'] %>
+                    <% days.forEach((day, index) => { %>
+                        <button data-day="<%= index + 1 %>" 
+                                class="day-tab p-4 rounded-lg text-center transition-all duration-300 hover:bg-purple-50
+                                       <%= index === 0 ? 'tab-active text-white' : 'bg-gray-50' %>">
+                            <div class="font-semibold"><%= day %></div>
+                            <div class="text-sm opacity-75">20 min</div>
+                        </button>
+                    <% }) %>
+                </div>
+
+                <!-- Day Content -->
+                <div id="dayContent" class="space-y-6">
+                    <div class="day-content" id="day1">
+                        <img src="/images/yg.jpg" alt="Yoga pose" class="w-full h-64 object-cover rounded-xl mb-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-6 rounded-xl">
+                                <h3 class="text-lg font-semibold mb-4">Morning Session</h3>
+                                <ul class="space-y-4">
+                                    <li class="flex items-center">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                        Sun Salutation (10 mins)
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                        Warrior Pose (5 mins)
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                        Tree Pose (5 mins)
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-xl">
+                                <h3 class="text-lg font-semibold mb-4">Session Details</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-purple-500 mr-3"></i>
+                                        <span>20 minutes total</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-fire-alt text-purple-500 mr-3"></i>
+                                        <span>150 calories</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-signal text-purple-500 mr-3"></i>
+                                        <span>Beginner friendly</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="window.location.href='/session/1'" 
+                                class="mt-6 bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-3 rounded-full 
+                                       font-semibold hover:opacity-90 transition-opacity">
+                            Start Session
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDay(dayNumber) {
+            // Hide all day content
+            document.querySelectorAll('.day-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show selected day content
+            document.getElementById(`day${dayNumber}`).style.display = 'block';
+            
+            // Update tab styles
+            document.querySelectorAll('.day-tab').forEach(tab => {
+                tab.classList.remove('tab-active', 'text-white');
+                tab.classList.add('bg-gray-50');
+            });
+            
+            // Style active tab
+            event.currentTarget.classList.remove('bg-gray-50');
+            event.currentTarget.classList.add('tab-active', 'text-white');
+        }
+
+        function generateDayContent(content) {
+            return `
+                <div class="day-content">
+                    <img src="/images/3434.jpg" alt="Yoga pose" class="w-full h-64 object-cover rounded-xl mb-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold mb-4">Morning Session</h3>
+                            <ul class="space-y-4">
+                                ${content.exercises.map(exercise => `
+                                    <li class="flex items-center">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                        ${exercise.name} (${exercise.duration})
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold mb-4">Session Details</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-purple-500 mr-3"></i>
+                                    <span>${content.duration} total</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-fire-alt text-purple-500 mr-3"></i>
+                                    <span>${content.calories} calories</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-signal text-purple-500 mr-3"></i>
+                                    <span>Beginner friendly</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="window.location.href='/session/1'" 
+                            class="mt-6 bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-3 rounded-full 
+                                   font-semibold hover:opacity-90 transition-opacity">
+                        Start Session
+                    </button>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add click event listeners to day tabs
+            document.querySelector('.grid').addEventListener('click', (event) => {
+                const button = event.target.closest('button');
+                if (button && button.classList.contains('day-tab')) {
+                    const dayNumber = button.dataset.day;
+                    showDay(dayNumber);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

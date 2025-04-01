@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Meditation - Fitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --spotify-black: #121212;
+            --spotify-green: #1DB954;
+            --spotify-light-black: #181818;
+            --spotify-hover-black: #282828;
+        }
+
+        body {
+            background: var(--spotify-black);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .meditation-card {
+            background-size: cover;
+            background-position: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meditation-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .meditation-card:hover {
+            transform: scale(1.02);
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, var(--start-color), var(--end-color));
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-sidebar {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .progress-fill {
+            background: var(--spotify-green);
+            transition: width 0.1s ease;
+            border-radius: 4px;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            height: 4px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+
+        .recently-played-container {
+            position: relative;
+        }
+
+        .recently-played-image {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.3s ease;
+        }
+
+        .recently-played-image img {
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+
+        .recently-played-image .play-button-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .recently-played-container:hover .play-button-overlay {
+            opacity: 1;
+        }
+
+        .recently-played-container:hover .recently-played-image {
+            filter: brightness(0.7);
+        }
+
+        .play-button {
+            transform: translateY(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .recently-played-container:hover .play-button {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Spotify-like scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            border: 3px solid var(--spotify-black);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Error state for images */
+        .image-error {
+            background: linear-gradient(135deg, #2D46B9, #F13C77);
+        }
+
+        .image-error img {
+            opacity: 0.5;
+        }
+
+        /* Player controls enhancements */
+        .player-controls button {
+            transition: all 0.2s ease;
+        }
+
+        .player-controls button:hover {
+            transform: scale(1.1);
+        }
+
+        .playing .fa-play {
+            display: none;
+        }
+
+        .playing .fa-pause {
+            display: inline-block;
+        }
+
+        .paused .fa-play {
+            display: inline-block;
+        }
+
+        .paused .fa-pause {
+            display: none;
+        }
+
+        /* Placeholder for image loading */
+        .image-placeholder {
+            background: linear-gradient(135deg, #1e1e1e, #2e2e2e);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+    <div class="flex">
+        <!-- Left Sidebar (Your existing sidebar) -->
+        <%- include('partials/sidebar', { user: user }) %>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-y-auto pb-32">
+            <header class="mb-8">
+                <h1 class="text-4xl font-bold mb-2">Meditation</h1>
+                <p class="text-gray-400">Find your inner peace through guided meditations</p>
+            </header>
+
+            <!-- Categories Section -->
+            <section class="mb-12">
+                <h2 class="text-xl font-bold mb-6">Categories</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <% const categories = [
+                        { name: 'Sleep', icon: 'fas fa-moon', colors: ['#2D46B9', '#F13C77'] },
+                        { name: 'Calm', icon: 'fas fa-cloud', colors: ['#1ED760', '#0D8744'] },
+                        { name: 'Focus', icon: 'fas fa-bullseye', colors: ['#E8115B', '#A70F44'] },
+                        { name: 'Emotion', icon: 'fas fa-heart', colors: ['#7358FF', '#3B2B88'] },
+                        { name: 'Confidence', icon: 'fas fa-crown', colors: ['#FF6B00', '#FF3B00'] },
+                        { name: 'Core', icon: 'fas fa-infinity', colors: ['#14B8A6', '#0F766E'] }
+                    ] %>
+
+                    <% categories.forEach(category => { %>
+                        <div class="category-card rounded-xl p-6 cursor-pointer aspect-square shadow-md"
+                             style="--start-color: <%= category.colors[0] %>; --end-color: <%= category.colors[1] %>">
+                            <div class="flex flex-col h-full justify-between">
+                                <i class="<%= category.icon %> text-3xl mb-4"></i>
+                                <div>
+                                    <h3 class="font-semibold"><%= category.name %></h3>
+                                    <p class="text-sm text-gray-300 mt-1">
+                                        <%= Math.floor(Math.random() * 10) + 5 %> sessions
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <!-- Recently Played -->
+            <section class="mb-12">
+                <h2 class="text-xl font-bold mb-6">Recently Played</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <% const recentSessions = [
+                        { 
+                            id: 'meditation-1',
+                            title: 'Deep Sleep', 
+                            author: 'Sleep Guide',
+                            duration: '30 min', 
+                            image: '/images/meditation/sleep.jpg',
+                            audio: '/audio/meditation/calm.mp3',
+                            gradient: ['#2D46B9', '#F13C77']
+                        },
+                        { 
+                            id: 'meditation-2',
+                            title: 'Morning Clarity', 
+                            author: 'Mindfulness Expert',
+                            duration: '15 min', 
+                            image: '/images/meditation/blop.jpg',
+                            audio: '/audio/meditation/confidence.mp3',
+                            gradient: ['#1ED760', '#0D8744']
+                        },
+                        { 
+                            id: 'meditation-3',
+                            title: 'Stress Relief', 
+                            author: 'Relaxation Coach',
+                            duration: '20 min', 
+                            image: '/images/meditation/cats.jpg',
+                            audio: '/audio/meditation/emotion.mp3',
+                            gradient: ['#E8115B', '#A70F44']
+                        },
+                        { 
+                            id: 'meditation-4',
+                            title: 'Inner Peace', 
+                            author: 'Zen Master',
+                            duration: '25 min', 
+                            image: '/images/meditation/koyo.jpg',
+                            audio: '/audio/meditation/Focus.mp3',
+                            gradient: ['#7358FF', '#3B2B88']
+                        }
+                    ] %>
+
+                    <% recentSessions.forEach(session => { %>
+                        <div class="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition-colors recently-played-container cursor-pointer" 
+                            data-track='<%= JSON.stringify(session) %>'>
+                            <div class="relative mb-4 recently-played-image rounded-md overflow-hidden">
+                                <div class="w-full aspect-square image-placeholder">
+                                    <div class="absolute inset-0 fallback-gradient" 
+                                        style="background: linear-gradient(135deg, <%= session.gradient[0] %>, <%= session.gradient[1] %>);">
+                                    </div>
+                                    <img src="<%= session.image %>" 
+                                        alt="<%= session.title %>"
+                                        class="w-full h-full object-cover relative z-10"
+                                        data-id="<%= session.id %>"
+                                        loading="lazy"/>
+                                </div>
+                                <button class="play-button absolute bottom-2 right-2 w-12 h-12 bg-[#1DB954] rounded-full 
+                                        flex items-center justify-center shadow-lg play-button-overlay">
+                                    <i class="fas fa-play text-lg"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-semibold truncate"><%= session.title %></h3>
+                            <p class="text-sm text-gray-400 truncate"><%= session.author %></p>
+                            <p class="text-xs text-gray-500 mt-1"><%= session.duration %></p>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <!-- Made for You -->
+            <section>
+                <h2 class="text-xl font-bold mb-6">Made for You</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% const recommendations = [
+                        { 
+                            title: 'Daily Mindfulness', 
+                            type: 'Focus Playlist', 
+                            tracks: '10 sessions',
+                            gradient: ['#1ED760', '#0D8744'] 
+                        },
+                        { 
+                            title: 'Peaceful Nights', 
+                            type: 'Sleep Mix', 
+                            tracks: '8 sessions',
+                            gradient: ['#2D46B9', '#F13C77'] 
+                        },
+                        { 
+                            title: 'Energy Boost', 
+                            type: 'Morning Routine', 
+                            tracks: '6 sessions',
+                            gradient: ['#7358FF', '#3B2B88'] 
+                        }
+                    ] %>
+
+                    <% recommendations.forEach(rec => { %>
+                        <div class="bg-[#181818] p-5 rounded-lg hover:bg-[#282828] transition-colors cursor-pointer shadow-sm">
+                            <div class="flex items-center">
+                                <div class="w-16 h-16 rounded mr-4 flex-shrink-0" 
+                                    style="background: linear-gradient(135deg, <%- rec.gradient[0] %>, <%- rec.gradient[1] %>);">
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold"><%= rec.title %></h3>
+                                    <p class="text-sm text-gray-400"><%= rec.type %> • <%= rec.tracks %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Sidebar - Player -->
+        <div class="player-sidebar w-96 p-6 fixed right-0 top-0 h-full hidden lg:block">
+            <div class="h-full flex flex-col">
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold mb-4">Now Playing</h3>
+                <!-- Replace the existing right sidebar image container code with this: -->
+                <div class="aspect-square mb-4 rounded-lg overflow-hidden">
+                <div id="current-meditation-image-container" class="relative w-full h-full">
+                    <div class="absolute inset-0 image-placeholder"></div>
+                    <img id="current-meditation-image" 
+                    src="/images/meditation/default-meditation.jpg" 
+                    alt="Current meditation"
+                    class="w-full h-full object-cover relative z-10"
+                    onerror="this.onerror=null; this.src='/images/meditation/default-meditation.jpg'; this.parentElement.classList.add('image-error')"/>
+                </div>
+                </div>
+                <h4 id="current-meditation-title" class="font-semibold">Select a meditation</h4>
+                <p id="current-meditation-author" class="text-sm text-gray-400">Meditation Guide</p>
+
+                <!-- Player Controls -->
+                <div class="mt-8">
+                <div class="flex items-center justify-center space-x-6 player-controls">
+                    <button class="text-gray-400 hover:text-white" id="shuffle-button">
+                    <i class="fas fa-random"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-white" id="prev-button">
+                    <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 paused" id="play-pause-button">
+                    <i class="fas fa-play text-black"></i>
+                    <i class="fas fa-pause text-black hidden"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-white" id="next-button">
+                    <i class="fas fa-step-forward"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-white" id="repeat-button">
+                    <i class="fas fa-repeat"></i>
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-xs text-gray-400 mb-2">
+                    <span id="current-time">0:00</span>
+                    <span id="duration-time">0:00</span>
+                    </div>
+                    <div class="progress-bar h-1 rounded-full" id="progress-container">
+                    <div class="progress-fill h-full w-0 rounded-full" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Volume Control -->
+                <div class="mt-6 flex items-center space-x-3">
+                    <i class="fas fa-volume-up text-gray-400" id="volume-icon"></i>
+                    <input type="range" class="volume-slider flex-1" min="0" max="100" value="70" id="volume-slider"/>
+                </div>
+                </div>
+            </div>
+
+            <!-- Queue -->
+            <div class="mt-6">
+                <h3 class="text-sm font-semibold mb-3">Next in Queue</h3>
+                <div id="queue-container" class="space-y-3">
+                <!-- Queue items will be added here dynamically -->
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Element (hidden) -->
+    <audio id="audio-player" preload="metadata"></audio>
+
+    <script src="/js/imageloader.js"></script>
+    <script src="/js/meditation.js"></script>
+</body>
+</html>

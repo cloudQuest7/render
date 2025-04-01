@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Recipes - Fitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --accent-color: #f472b6;
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .recipe-card {
+            background: white;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-input {
+            border: 1px solid var(--card-border);
+            background: white;
+            color: var(--text-color);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .category-filter {
+            border: 1px solid var(--card-border);
+            background: white;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-white text-gray-800 min-h-screen">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <%- include('partials/sidebar', { user: user }) %>
+
+        <div class="flex-1 p-6 md:p-8">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold mb-2 text-gray-900">Healthy Recipes</h1>
+                <p class="text-gray-600">Select healthy meals for your diet plan</p>
+            </header>
+
+            <!-- Search and Filters -->
+            <div class="mb-8">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" 
+                           id="searchInput"
+                           placeholder="Search recipes..." 
+                           class="flex-1 search-input rounded-lg px-4 py-2 focus:outline-none"/>
+                    <select id="categoryFilter" class="category-filter rounded-lg px-4 py-2">
+                        <option value="all">All Categories</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snacks</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Recipe cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample recipe data
+        const recipes = [
+            {
+                id: 1,
+                name: "Oatmeal Bowl",
+                calories: 350,
+                protein: 12,
+                carbs: 56,
+                fats: 8,
+                time: "15 min",
+                image: "/images/recipes/oats.jpg",
+                category: "breakfast",
+                description: "Healthy oatmeal with fruits and nuts"
+            },
+            {
+                id: 2,
+                name: "Grilled Chicken Salad",
+                calories: 420,
+                protein: 35,
+                carbs: 12,
+                fats: 28,
+                time: "20 min",
+                image: "/images/recipes/grilled-chicken.jpg",
+                category: "lunch",
+                description: "Fresh salad with grilled chicken breast"
+            },
+            {
+                id: 3,
+                name: "Salmon with Quinoa",
+                calories: 480,
+                protein: 42,
+                carbs: 38,
+                fats: 22,
+                time: "25 min",
+                image: "/images/recipes/salmon.jpg",
+                category: "dinner",
+                description: "Grilled salmon with quinoa and vegetables"
+            }
+        ];
+
+        // Function to create recipe card HTML
+        function createRecipeCard(recipe) {
+            return `
+                <div class="recipe-card rounded-xl overflow-hidden">
+                    <div class="relative">
+                        <img src="${recipe.image}" 
+                             alt="${recipe.name}" 
+                             class="w-full h-48 object-cover" 
+                             onerror="this.onerror=null; this.src='/images/salmon.jpg'"/>
+                        <span class="absolute top-4 right-4 text-sm bg-white px-3 py-1 rounded-full shadow-md">
+                            ${recipe.time}
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${recipe.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${recipe.description}</p>
+                        <div class="grid grid-cols-3 gap-4 mb-4 bg-gray-50 p-3 rounded-lg">
+                            <div class="text-center">
+                                <div class="text-sm text-gray-500">Calories</div>
+                                <div class="font-bold text-gray-900">${recipe.calories}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm text-gray-500">Protein</div>
+                                <div class="font-bold text-gray-900">${recipe.protein}g</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm text-gray-500">Carbs</div>
+                                <div class="font-bold text-gray-900">${recipe.carbs}g</div>
+                            </div>
+                        </div>
+                        <button onclick="addToMealPlan(${recipe.id}, '${recipe.category}')"
+                                class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg
+                                       transition-all duration-200 flex items-center justify-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            Add to Meal Plan
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to render recipes
+        function renderRecipes(filteredRecipes = recipes) {
+            const recipeGrid = document.getElementById('recipeGrid');
+            recipeGrid.innerHTML = filteredRecipes.map(recipe => createRecipeCard(recipe)).join('');
+        }
+
+        // Search and filter functionality
+        document.getElementById('searchInput').addEventListener('input', filterRecipes);
+        document.getElementById('categoryFilter').addEventListener('change', filterRecipes);
+
+        function filterRecipes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+
+            const filteredRecipes = recipes.filter(recipe => {
+                const matchesSearch = recipe.name.toLowerCase().includes(searchTerm) ||
+                                    recipe.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = category === 'all' || recipe.category === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            renderRecipes(filteredRecipes);
+        }
+
+        // Add to meal plan functionality
+        function addToMealPlan(recipeId, meal) {
+            // Here you would typically make an API call to save the meal
+            fetch('/api/meal-plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    recipeId,
+                    meal,
+                    date: new Date().toISOString()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/nutrition';
+                }
+            })
+            .catch(error => {
+                console.error('Error adding meal:', error);
+                alert('Failed to add meal to plan');
+            });
+        }
+
+        // Initial render
+        renderRecipes();
+    </script>
+</body>
+</html>

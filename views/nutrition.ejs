@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Dashboard - Fitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --accent-color: #f472b6;
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .water-meter {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            overflow: hidden;
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .water-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+            transition: height 0.5s ease-out;
+        }
+
+        .nutrition-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nutrition-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .meal-card {
+            background: white;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .meal-card.breakfast {
+            background: linear-gradient(135deg, #fff5f7 0%, #fdf2f8 100%);
+        }
+
+        .meal-card.lunch {
+            background: linear-gradient(135deg, #f7fee7 0%, #ecfdf5 100%);
+        }
+
+        .meal-card.dinner {
+            background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%);
+        }
+
+        .add-meal-btn {
+            color: var(--primary-color);
+            background: white;
+            border: 2px dashed #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .add-meal-btn:hover {
+            border-color: var(--primary-color);
+            background: #f3f4f6;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-white to-gray-50 text-gray-800 min-h-screen">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Include sidebar -->
+        <%- include('partials/sidebar', { user: user }) %>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 md:p-8">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Nutrition Dashboard</h1>
+                <p class="text-gray-400">Track your daily nutrition and water intake</p>
+            </header>
+
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Calories Section -->
+                <div class="lg:col-span-2">
+                    <div class="nutrition-card rounded-xl p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Calories Intake</h2>
+                            <select class="bg-transparent border border-gray-600 rounded-lg px-3 py-1">
+                                <option>Today</option>
+                                <option>This Week</option>
+                                <option>This Month</option>
+                            </select>
+                        </div>
+                        <canvas id="caloriesChart" height="200"></canvas>
+                    </div>
+
+                    <!-- Macronutrients -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="nutrition-card rounded-xl p-4">
+                            <h3 class="text-gray-400 mb-2">Proteins</h3>
+                            <div class="flex justify-between items-end">
+                                <span class="text-2xl font-bold">65g</span>
+                                <span class="text-green-400">+12%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2 mt-2 progress-bar">
+                                <div class="bg-green-400 h-2 rounded-full progress-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-card rounded-xl p-4">
+                            <h3 class="text-gray-400 mb-2">Carbs</h3>
+                            <div class="flex justify-between items-end">
+                                <span class="text-2xl font-bold">240g</span>
+                                <span class="text-yellow-400">-8%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2 mt-2 progress-bar">
+                                <div class="bg-yellow-400 h-2 rounded-full progress-fill" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-card rounded-xl p-4">
+                            <h3 class="text-gray-400 mb-2">Fats</h3>
+                            <div class="flex justify-between items-end">
+                                <span class="text-2xl font-bold">55g</span>
+                                <span class="text-purple-400">+5%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2 mt-2 progress-bar">
+                                <div class="bg-purple-400 h-2 rounded-full progress-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Water Intake Section -->
+                <div class="nutrition-card rounded-xl p-6">
+                    <h2 class="text-xl font-semibold mb-6">Water Intake</h2>
+                    <div class="flex flex-col items-center">
+                        <div class="water-meter mb-6">
+                            <div class="water-fill" id="waterFill" style="height: 30%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <span class="text-3xl font-bold" id="waterAmount">0.9L</span>
+                                <span class="text-sm text-gray-400">of 3L goal</span>
+                            </div>
+                        </div>
+                        <button onclick="addWater()" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl
+                                       flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                            <i class="fas fa-plus"></i>
+                            Add 250ml
+                        </button>
+                    </div>
+                    <!-- Water Intake History -->
+                    <div class="mt-6">
+                        <h3 class="text-gray-400 mb-4">Today's Intake</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span>250ml</span>
+                                <span class="text-gray-400">8:00 AM</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>350ml</span>
+                                <span class="text-gray-400">10:30 AM</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span>300ml</span>
+                                <span class="text-gray-400">1:15 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Plan Section -->
+            <div class="nutrition-card rounded-xl p-6 mt-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">Today's Meal Plan</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Total Calories: 0/2000</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Breakfast Card -->
+                    <div class="meal-card breakfast p-4 rounded-xl relative group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold">Breakfast</h3>
+                            <span class="text-gray-400">8:00 AM</span>
+                        </div>
+                        <div id="breakfast-meals" class="space-y-2 text-sm min-h-[100px]">
+                            <% if (mealPlan.breakfast) { %>
+                                <div class="meal-item bg-white/10 p-3 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium"><%= mealPlan.breakfast.name %></h4>
+                                            <p class="text-sm text-gray-400"><%= mealPlan.breakfast.calories %> calories</p>
+                                        </div>
+                                        <button onclick="removeMeal('breakfast')" 
+                                                class="text-gray-400 hover:text-red-400 transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-400">
+                                        <div>P: <%= mealPlan.breakfast.protein %>g</div>
+                                        <div>C: <%= mealPlan.breakfast.carbs %>g</div>
+                                        <div>F: <%= mealPlan.breakfast.fats %>g</div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="flex flex-col items-center justify-center h-full text-center">
+                                    <a href="/recipes?meal=breakfast" 
+                                       class="add-meal-btn p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                        <i class="fas fa-plus text-xl"></i>
+                                    </a>
+                                    <p class="text-gray-400 mt-2">Add Breakfast</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Lunch Card -->
+                    <div class="meal-card lunch p-4 rounded-xl relative group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold">Lunch</h3>
+                            <span class="text-gray-400">1:00 PM</span>
+                        </div>
+                        <div id="lunch-meals" class="space-y-2 text-sm min-h-[100px]">
+                            <% if (mealPlan.lunch) { %>
+                                <div class="meal-item bg-white/10 p-3 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium"><%= mealPlan.lunch.name %></h4>
+                                            <p class="text-sm text-gray-400"><%= mealPlan.lunch.calories %> calories</p>
+                                        </div>
+                                        <button onclick="removeMeal('lunch')" 
+                                                class="text-gray-400 hover:text-red-400 transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-400">
+                                        <div>P: <%= mealPlan.lunch.protein %>g</div>
+                                        <div>C: <%= mealPlan.lunch.carbs %>g</div>
+                                        <div>F: <%= mealPlan.lunch.fats %>g</div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="flex flex-col items-center justify-center h-full text-center">
+                                    <a href="/recipes?meal=lunch" 
+                                       class="add-meal-btn p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                        <i class="fas fa-plus text-xl"></i>
+                                    </a>
+                                    <p class="text-gray-400 mt-2">Add Lunch</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Dinner Card -->
+                    <div class="meal-card dinner p-4 rounded-xl relative group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold">Dinner</h3>
+                            <span class="text-gray-400">7:00 PM</span>
+                        </div>
+                        <div id="dinner-meals" class="space-y-2 text-sm min-h-[100px]">
+                            <% if (mealPlan.dinner) { %>
+                                <div class="meal-item bg-white/10 p-3 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium"><%= mealPlan.dinner.name %></h4>
+                                            <p class="text-sm text-gray-400"><%= mealPlan.dinner.calories %> calories</p>
+                                        </div>
+                                        <button onclick="removeMeal('dinner')" 
+                                                class="text-gray-400 hover:text-red-400 transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-400">
+                                        <div>P: <%= mealPlan.dinner.protein %>g</div>
+                                        <div>C: <%= mealPlan.dinner.carbs %>g</div>
+                                        <div>F: <%= mealPlan.dinner.fats %>g</div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="flex flex-col items-center justify-center h-full text-center">
+                                    <a href="/recipes?meal=dinner" 
+                                       class="add-meal-btn p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all">
+                                        <i class="fas fa-plus text-xl"></i>
+                                    </a>
+                                    <p class="text-gray-400 mt-2">Add Dinner</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calories Chart
+        const ctx = document.getElementById('caloriesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Calories',
+                    data: [2100, 2300, 1950, 2400, 2200, 1800, 2000],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#4b5563'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Water Intake
+        let waterLevel = 30;
+        const waterFill = document.getElementById('waterFill');
+        const waterAmount = document.getElementById('waterAmount');
+
+        function addWater() {
+            if (waterLevel < 100) {
+                waterLevel += 10;
+                waterFill.style.height = `${waterLevel}%`;
+                waterAmount.textContent = `${(waterLevel * 0.03).toFixed(1)}L`;
+            }
+        }
+
+        function removeMeal(mealType) {
+            fetch('/api/meal-plan', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ meal: mealType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error removing meal:', error);
+                alert('Failed to remove meal');
+            });
+        }
+    </script>
+</body>
+</html>

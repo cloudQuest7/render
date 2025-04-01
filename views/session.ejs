@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Yoga Session - Fitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .timer-ring { animation: countdown 60s linear infinite; }
+        @keyframes countdown {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: 283; } /* 2πr where r = 45 */
+        }
+        .video-container {
+            position: relative;
+        }
+        video::-webkit-media-controls-start-playback-button {
+            display: none;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .completion-animation {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #returnBtn:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="p-4 flex items-center justify-between bg-gray-800">
+            <button onclick="window.location.href='/yoga'" class="text-white">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <h1 class="text-xl font-bold">Morning Yoga Session</h1>
+            <div class="w-8"></div> <!-- Spacer for alignment -->
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 flex flex-col md:flex-row gap-6">
+            <!-- Video Section -->
+            <div class="md:w-2/3">
+                <div class="relative bg-black rounded-xl overflow-hidden">
+                    <video id="exerciseVideo" class="w-full aspect-video" controls>
+                        <source src="/videos/exercise1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- Exercise Info Section -->
+            <div class="md:w-1/3 space-y-6">
+                <!-- Timer -->
+                <div class="bg-gray-800 p-6 rounded-xl text-center">
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <svg class="transform -rotate-90 w-32 h-32">
+                            <circle cx="60" cy="60" r="45" stroke="currentColor" 
+                                    stroke-width="8" fill="none" class="text-gray-700" />
+                            <circle cx="60" cy="60" r="45" stroke="currentColor" 
+                                    stroke-width="8" fill="none" class="text-purple-500 timer-ring"
+                                    stroke-dasharray="283" stroke-dashoffset="0" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="timer" class="text-3xl font-bold">01:00</span>
+                        </div>
+                    </div>
+                    <div class="space-x-4">
+                        <button id="pauseBtn" class="bg-purple-500 p-3 rounded-full">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button id="resetBtn" class="bg-gray-600 p-3 rounded-full">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Exercise -->
+                <div class="bg-gray-800 p-6 rounded-xl">
+                    <h2 class="text-xl font-bold mb-4">Sun Salutation</h2>
+                    <div class="space-y-4">
+                        <p class="text-gray-400">
+                            Start in mountain pose, then flow through the sequence focusing on your breath.
+                        </p>
+                        <div class="flex justify-between text-sm">
+                            <span>Exercise 1 of 3</span>
+                            <span>10 minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex gap-4">
+                    <button id="prevBtn" class="flex-1 bg-gray-700 py-3 px-6 rounded-xl hover:bg-gray-600 transition-colors">
+                        Previous
+                    </button>
+                    <button id="nextBtn" class="flex-1 bg-purple-500 py-3 px-6 rounded-xl hover:bg-purple-600 transition-colors">
+                        Next Exercise
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const exercises = [
+            {
+                name: 'Sun Salutation',
+                duration: 60, // seconds
+                video: '/videos/fit1.mp4',
+                description: 'Start in mountain pose, then flow through the sequence focusing on your breath.'
+            },
+            {
+                name: 'Warrior Pose',
+                duration: 60,
+                video: '/videos/fit2.mp4',
+                description: 'Stand in a lunge position with your front knee bent and back leg straight.'
+            },
+            {
+                name: 'Tree Pose',
+                duration: 60,
+                video: '/videos/fit3.mp4',
+                description: 'Balance on one leg with the other foot placed against your inner thigh.'
+            }
+        ];
+
+        let currentExercise = 0;
+        let timeLeft = exercises[0].duration;
+        let timerInterval;
+        let isPaused = false;
+
+        const video = document.getElementById('exerciseVideo');
+        const timer = document.getElementById('timer');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused && timeLeft > 0) {
+                    timeLeft--;
+                    updateTimer();
+                    if (timeLeft === 0) {
+                        nextExercise();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Update the loadExercise function:
+        function loadExercise(index) {
+            const exercise = exercises[index];
+            video.src = exercise.video;
+            video.load(); // Ensure the video is loaded
+            video.play()  // Autoplay the video
+                .catch(error => {
+                    console.log("Video autoplay failed:", error);
+                    // Handle autoplay failure (some browsers block autoplay)
+                    const playButton = document.createElement('button');
+                    playButton.innerHTML = '<i class="fas fa-play"></i> Play Video';
+                    playButton.className = 'bg-purple-500 py-2 px-4 rounded absolute top-4 left-4';
+                    playButton.onclick = () => video.play();
+                    video.parentElement.appendChild(playButton);
+                });
+
+            timeLeft = exercise.duration;
+            updateTimer();
+            document.querySelector('h2').textContent = exercise.name;
+            document.querySelector('p').textContent = exercise.description;
+            document.querySelector('span').textContent = `Exercise ${index + 1} of ${exercises.length}`;
+            
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === exercises.length - 1;
+            
+            startTimer();
+        }
+
+        function nextExercise() {
+            if (currentExercise < exercises.length - 1) {
+                currentExercise++;
+                loadExercise(currentExercise);
+            } else if (currentExercise === exercises.length - 1 && timeLeft === 0) {
+                // Last exercise completed
+                completeWorkout();
+            }
+        }
+
+        function previousExercise() {
+            if (currentExercise > 0) {
+                currentExercise--;
+                loadExercise(currentExercise);
+            }
+        }
+
+        // Add this function after your existing functions
+        function completeWorkout() {
+            // Clear any existing intervals
+            clearInterval(timerInterval);
+            
+            // Show completion message with enhanced animation
+            const completionMessage = document.createElement('div');
+            completionMessage.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50 completion-animation';
+            completionMessage.innerHTML = `
+                <div class="bg-gray-800 p-8 rounded-xl text-center transform transition-transform duration-300 hover:scale-105">
+                    <h2 class="text-2xl font-bold mb-4">Workout Complete! 🎉</h2>
+                    <p class="mb-6">Great job completing all exercises!</p>
+                    <div class="space-y-4">
+                        <button id="returnBtn" 
+                                class="bg-purple-500 py-3 px-6 rounded-xl hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
+                            Return to Yoga Page
+                        </button>
+                        <div id="redirectMessage" class="text-sm text-gray-400 hidden">
+                            Redirecting...
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(completionMessage);
+        
+            // Enhanced click handler with transition
+            document.getElementById('returnBtn').addEventListener('click', async () => {
+                try {
+                    // Show redirecting message
+                    document.getElementById('redirectMessage').classList.remove('hidden');
+                    
+                    // Fade out animation
+                    completionMessage.style.opacity = '0';
+                    completionMessage.style.transition = 'opacity 0.5s ease-out';
+                    
+                    // Small delay for animation
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Redirect to yoga page
+                    window.location.href = '/yoga';
+                } catch (error) {
+                    console.error('Redirect error:', error);
+                    // Show error message if redirect fails
+                    document.getElementById('redirectMessage').textContent = 'Error redirecting. Please try again.';
+                    document.getElementById('redirectMessage').classList.add('text-red-500');
+                }
+            });
+        }
+
+        // Event Listeners
+        pauseBtn.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseBtn.innerHTML = isPaused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            timeLeft = exercises[currentExercise].duration;
+            updateTimer();
+            video.currentTime = 0;
+        });
+
+        nextBtn.addEventListener('click', nextExercise);
+        prevBtn.addEventListener('click', previousExercise);
+
+        // Start with first exercise
+        loadExercise(0);
+
+        // Update the video ended event listener
+        video.addEventListener('ended', () => {
+            if (currentExercise < exercises.length - 1) {
+                nextExercise();
+            } else {
+                // Last video ended
+                timeLeft = 0;
+                updateTimer();
+                completeWorkout();
+            }
+        });
+
+        // Optional: Add loading indicator
+        video.addEventListener('waiting', () => {
+            // Show loading spinner
+            const loadingSpinner = document.createElement('div');
+            loadingSpinner.id = 'video-loading';
+            loadingSpinner.className = 'absolute inset-0 flex items-center justify-center bg-black bg-opacity-50';
+            loadingSpinner.innerHTML = `
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+            `;
+            video.parentElement.appendChild(loadingSpinner);
+        });
+
+        video.addEventListener('playing', () => {
+            // Remove loading spinner
+            const loadingSpinner = document.getElementById('video-loading');
+            if (loadingSpinner) {
+                loadingSpinner.remove();
+            }
+        });
+    </script>
+</body>
+</html>

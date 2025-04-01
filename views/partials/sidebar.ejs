@@ -1,0 +1,110 @@
+<div class="bg-[#908bdb] w-20 md:w-20 hover:w-64 p-4 flex flex-col transition-all duration-300 ease-in-out h-screen group">
+    <!-- Logo and Brand -->
+    <div class="flex items-center">
+        <img alt="Logo" 
+             class="w-12 h-12 rounded-full" 
+             src="/images/cad.png"/>
+        <span class="ml-2 text-xl font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">FITRA</span>
+    </div>
+
+    <!-- User Profile Section -->
+    <div class="flex items-center mb-10 mt-6">
+        <img alt="User profile picture" 
+             class="rounded-full w-12 h-12" 
+             src="<%= user?.profilePic || 'https://placehold.co/50x50' %>"/>
+        <div class="ml-4 hidden group-hover:block transition-all duration-300">
+            <p class="text-sm text-white">Welcome back</p>
+            <p class="text-lg font-semibold text-white"><%= user?.username || 'Guest' %> 
+                <span class="text-purple-200">Pro</span>
+            </p>
+            <!-- Level indicator -->
+            <div class="mt-2">
+                <p class="text-white">Your Level</p>
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-white">08</span>
+                    <img alt="Level graph" class="ml-2 h-5" src="https://placehold.co/50x20"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex flex-col space-y-5 mb-10">
+        <a class="flex items-center <%= (activePage === 'home') ? 'text-white' : 'text-white/70' %> hover:text-white transition-colors" 
+           href="/home">
+            <i class="fas fa-home text-xl min-w-[20px]"></i>
+            <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Home</span>
+        </a>
+        <a class="flex items-center <%= path === '/fitness' ? 'text-white' : 'text-white/70' %> hover:text-white transition-colors" 
+           href="/fitness">
+            <i class="fas fa-dumbbell text-xl min-w-[20px]"></i>
+            <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Fitness</span>
+        </a>
+        <a class="flex items-center <%= (activePage === 'meditation') ? 'text-white' : 'text-white/70' %> hover:text-white transition-colors" 
+           href="/universe">
+            <i class="fas fa-spa text-xl min-w-[20px]"></i>
+            <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Meditation</span>
+        </a>
+        <a class="flex items-center <%= activePage === 'nutrition' ? 'text-white' : 'text-white/70' %> hover:text-white transition-colors" 
+           href="/nutrition">
+            <i class="fas fa-utensils text-xl min-w-[20px]"></i>
+            <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Nutrition</span>
+        </a>
+        <a class="flex items-center <%= activePage === 'settings' ? 'text-white' : 'text-white/70' %> hover:text-white transition-colors" 
+           href="/setting">
+            <i class="fas fa-cog text-xl min-w-[20px]"></i>
+            <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Settings</span>
+        </a>
+    </nav>
+
+    <!-- Logout Button -->
+    <a href="/logout" class="mt-auto flex items-center text-white/70 hover:text-red-200 transition-colors" 
+       onclick="handleLogout(event)">
+        <i class="fas fa-power-off text-xl min-w-[20px]"></i>
+        <span class="ml-4 text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">Logout</span>
+    </a>
+</div>
+
+<style>
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.group:hover .group-hover\:block {
+    display: block;
+}
+
+.group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+}
+
+.fixed-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+.sidebar-icon {
+    margin-bottom: 24px;
+    padding-left: 8px;
+}
+</style>
+
+<script>
+function handleLogout(event) {
+    event.preventDefault();
+    fetch('/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/';  // Redirect to landing page
+        }
+    })
+    .catch(error => console.error('Logout error:', error));
+}
+</script>

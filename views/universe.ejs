@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fitra - Yoga & Fitness</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Island+Moments&family=Josefin+Slab&family=Kaisei+HarunoUmi&family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="/css/universe.css" />
+  </head>
+  <body>
+    <div class="flex">
+        
+      <!-- Wrap existing content in a main-content div -->
+       
+      <div class="main-content">
+        <div class="container">
+          <div class="content-wrapper">
+            <header class="header">
+              <h1 class="logo">Fitra</h1>
+            </header>
+
+            <main class="hero-section">
+              <section class="hero-content">
+                <h2 class="hero-title">Get better peace of<span class="highlight">mind</span></h2>
+                
+                <!-- Meditation button replacing "Start Now" -->
+                <div class="button-container">
+                  <a href="/meditation" class="meditation-button" id="meditationButton">Enter the Meditation Universe</a>
+                  <div class="glow"></div>
+                  
+                </div>
+              </section>
+            </main>
+          </div>
+          
+
+          <div class="purple-background">
+            <div class="gradient-circle-container">
+              <div class="gradient-circle"></div>
+              <img 
+                src="./images/meditation_logo.png" 
+                alt="Yoga Pose" 
+                class="ellipse-image"
+              />
+              
+              
+              <div class="quote-container">
+                <div class="quote-content">
+                  <div class="quote-left">
+                    <h3 class="quote-number">#01</h3>
+                    <p class="quote-text">
+                      Be still. The quieter you become, the more you can hear.
+                    </p>
+                  </div>
+                  
+                  <div class="quote-right">
+                    <blockquote class="quote-attribution">
+                      <p>Yoga is the journey of the self, through the self, to the self.</p>
+                      <cite class="quote-author">-Bhagavad Gita</cite>
+                    </blockquote>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-wrapper">
+            <div class="image-gallery">
+             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Audio element for the hover sound -->
+    <audio id="hoverSound" preload="auto">
+      <source src="/audio/meditation/universe.mp3" type="audio/mp3">
+      <source src="/audio/meditation/universe.ogg" type="audio/ogg">
+      Your browser does not support the audio element.
+    </audio>
+    
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('meditationButton');
+    const hoverSound = document.getElementById('hoverSound');
+    let isAudioInitialized = false;
+
+    // Initialize audio on first user interaction
+    document.body.addEventListener('click', function() {
+        if (!isAudioInitialized) {
+            hoverSound.load();
+            isAudioInitialized = true;
+        }
+    }, { once: true });
+
+    // Play custom hover sound
+    function playHoverSound() {
+        try {
+            hoverSound.currentTime = 0; // Reset audio to start
+            hoverSound.volume = 0.3; // Set volume to 30%
+            hoverSound.play()
+                .catch(error => console.error('Audio playback failed:', error));
+        } catch (error) {
+            console.error('Audio playback failed:', error);
+        }
+    }
+
+    // Create ripple effect
+    function createRipple(event) {
+        const ripple = document.createElement('div');
+        ripple.classList.add('button-ripple');
+        button.appendChild(ripple);
+        
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${event.clientX - rect.left - size/2}px`;
+        ripple.style.top = `${event.clientY - rect.top - size/2}px`;
+        
+        ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    // Event listeners
+    button.addEventListener('mouseenter', function(event) {
+        playHoverSound();
+        createRipple(event);
+    });
+
+    button.addEventListener('click', function(event) {
+        playHoverSound();
+        createRipple(event);
+    });
+});
+</script>
+ 
+  </body>
+</html>

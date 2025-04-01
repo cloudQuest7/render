@@ -1,0 +1,324 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Home Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link href="./styles.css" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .group:hover .group-hover\:block {
+            display: block;
+        }
+        
+        .group:hover .group-hover\:opacity-100 {
+            opacity: 1;
+        }
+        
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        .min-w-\[20px\] {
+            min-width: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar -->
+    <div class="w-16 md:w-16 hover:w-64 bg-white p-4 flex flex-col transition-all duration-300 ease-in-out fixed h-screen group">
+        <div class="flex items-center">
+            <i class="fas fa-pause-circle text-2xl text-black"></i>
+            <span class="ml-2 text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">FITRA</span>
+        </div>
+        
+        <!-- User Profile Section -->
+        <div class="flex items-center mb-8 mt-6">
+            <img alt="User profile picture" 
+                 class="rounded-full w-12 h-12 sidebar-profile-pic" 
+                 src="<%= user.profilePic || 'default-profile.jpg' %>" 
+                 width="50" 
+                 height="50"/>
+            <div class="ml-4 hidden group-hover:block transition-all duration-300">
+                <p class="text-sm text-gray-500">Welcome back</p>
+                <% if (user) { %>
+                    <p class="text-lg font-semibold"><%= user.username %> <span class="text-purple-500">Pro</span></p>
+                <% } else { %>
+                    <p class="text-lg font-semibold">Guest <span class="text-purple-500">Pro</span></p>
+                <% } %>
+                <!-- Level indicator -->
+                <div class="mt-2">
+                    <p class="text-gray-500">Your Level</p>
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold">08</span>
+                        <img alt="Level graph" class="ml-2" height="20" src="https://placehold.co/50x20" width="50"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex flex-col space-y-4">
+            <a class="flex items-center text-gray-500 hover:text-blue-500 transition-colors" href="/home">
+                <i class="fas fa-home text-xl min-w-[20px]"></i>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Home</span>
+            </a>
+            <a class="flex items-center text-gray-500 hover:text-blue-500 transition-colors" href="/fitness">
+                <i class="fas fa-dumbbell text-xl min-w-[20px]"></i>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Fitness</span>
+            </a>
+            <a class="flex items-center text-gray-500 hover:text-blue-500 transition-colors" href="/meditation">
+                <i class="fas fa-spa text-xl min-w-[20px]"></i>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Meditation</span>
+            </a>
+            <a class="flex items-center text-gray-500 hover:text-blue-500 transition-colors" href="/nutrition">
+                <i class="fas fa-utensils text-xl min-w-[20px]"></i>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Nutrition</span>
+            </a>
+            <a class="flex items-center text-blue-500 hover:text-blue-600 transition-colors" href="/setting">
+                <i class="fas fa-cog text-xl min-w-[20px]"></i>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Settings</span>
+            </a>
+        </nav>
+
+        <!-- Logout Button -->
+        <a class="mt-auto flex items-center text-gray-500 hover:text-red-500 transition-colors" href="/logout">
+            <i class="fas fa-power-off text-xl min-w-[20px]"></i>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Logout</span>
+        </a>
+    </div>
+    
+
+    <div class="max-w-4xl mx-auto bg-white p-8 mt-10 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Account Settings</h2>
+
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Profile Picture</h3>
+            <div class="flex items-center mt-5">
+                <img id="preview-image" 
+                     src="<%= user.profilePic || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bW9kZWx8ZW58MHx8MHx8fDA%3D' %>" 
+                     alt="Profile Picture" 
+                     class="w-16 h-16 rounded-full border object-cover">
+                <div class="ml-4">
+                    <p class="text-gray-600 mx-4">Upload a PNG or JPEG under 15MB</p>
+                    <input type="file" 
+                           id="profile-upload" 
+                           accept="image/*" 
+                           class="hidden" 
+                           onchange="handleImageUpload(event)">
+                </div>
+                <button onclick="document.getElementById('profile-upload').click()" 
+                        class="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Upload
+                </button>
+                <button onclick="deleteProfilePic()" 
+                        class="ml-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                    Delete
+                </button>
+            </div>
+            <div id="upload-status" class="mt-2 text-sm"></div>
+        </div>
+
+        
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Full Name</h3>
+            <div class="flex mt-2 gap-4">
+                <input type="text" placeholder="First Name" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+                <input type="text" placeholder="Last Name" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+            </div>
+        </div>
+
+       
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Contact Email</h3>
+            <div class="mt-2">
+                <input type="email" placeholder="example@mail.com" class="w-full p-2 border rounded-md focus:outline-blue-500">
+            </div>
+        </div>
+
+        
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Password</h3>
+            <div class="flex mt-2 gap-4">
+                <input type="password" placeholder="Current Password" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+                <input type="password" placeholder="New Password" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+            </div>
+        </div>
+
+        
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Notification Reminders</h3>
+            <div class="mt-2 flex flex-col gap-4">
+                <label class="flex items-center">
+                    <input type="checkbox" class="mr-2">
+                    Exercise Reminder
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" class="mr-2">
+                    Water Intake Reminder
+                </label>
+            </div>
+        </div>
+
+        
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold">Personal Data</h3>
+            <div class="flex mt-2 gap-4">
+                <input type="number" placeholder="Weight (kg)" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+                <input type="number" placeholder="Height (cm)" class="w-1/2 p-2 border rounded-md focus:outline-blue-500">
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-6 align-center">
+            <button onclick="saveSettings()" 
+                    class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                Save Changes
+            </button>
+        </div>
+    </div>
+    
+
+    <script>
+    async function saveSettings() {
+        const statusDiv = document.getElementById('upload-status');
+        statusDiv.innerHTML = '<span class="text-blue-500">Saving...</span>';
+
+        try {
+            // Collect data from inputs
+            const firstName = document.querySelector('input[placeholder="First Name"]').value;
+            const lastName = document.querySelector('input[placeholder="Last Name"]').value;
+            const email = document.querySelector('input[type="email"]').value;
+            const currentPassword = document.querySelector('input[placeholder="Current Password"]').value;
+            const newPassword = document.querySelector('input[placeholder="New Password"]').value;
+            const weight = document.querySelector('input[placeholder="Weight (kg)"]').value;
+            const height = document.querySelector('input[placeholder="Height (cm)"]').value;
+            const exerciseReminder = document.querySelector('input[type="checkbox"]:nth-of-type(1)').checked;
+            const waterReminder = document.querySelector('input[type="checkbox"]:nth-of-type(2)').checked;
+
+            // Prepare data for submission
+            const settingsData = {
+                firstName,
+                lastName,
+                email,
+                currentPassword,
+                newPassword,
+                weight,
+                height,
+                reminders: {
+                    exercise: exerciseReminder,
+                    water: waterReminder
+                }
+            };
+
+            // Send data to the server
+            const response = await fetch('/api/save-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settingsData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                statusDiv.innerHTML = '<span class="text-green-500">Settings saved successfully!</span>';
+            } else {
+                throw new Error(data.message || 'Failed to save settings');
+            }
+        } catch (error) {
+            console.error('Save error:', error);
+            statusDiv.innerHTML = `<span class="text-red-500">${error.message}</span>`;
+        }
+    }
+    </script>
+
+
+</div>
+<script>
+// Replace the existing handleImageUpload function
+async function handleImageUpload(event) {
+    const file = event.target.files[0];
+    const maxSize = 15 * 1024 * 1024; // 15MB
+    const statusDiv = document.getElementById('upload-status');
+    const previewImage = document.getElementById('preview-image');
+    const sidebarImage = document.querySelector('.sidebar-profile-pic'); // Add this class to sidebar image
+
+    // Reset status
+    statusDiv.innerHTML = '';
+
+    // Validate file
+    if (!file) return;
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+        statusDiv.innerHTML = '<span class="text-red-500">Please select a JPEG or PNG file</span>';
+        return;
+    }
+    if (file.size > maxSize) {
+        statusDiv.innerHTML = '<span class="text-red-500">File size must be less than 15MB</span>';
+        return;
+    }
+
+    // Show loading state
+    statusDiv.innerHTML = '<span class="text-blue-500">Uploading...</span>';
+
+    try {
+        const formData = new FormData();
+        formData.append('profilePic', file);
+
+        const response = await fetch('/api/upload-profile-pic', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update both preview and sidebar images
+            const imageUrl = URL.createObjectURL(file);
+            previewImage.src = imageUrl;
+            if (sidebarImage) sidebarImage.src = imageUrl;
+            
+            statusDiv.innerHTML = '<span class="text-green-500">Upload successful!</span>';
+        } else {
+            throw new Error(data.message || 'Upload failed');
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        statusDiv.innerHTML = `<span class="text-red-500">${error.message}</span>`;
+    }
+}
+
+async function deleteProfilePic() {
+    const statusDiv = document.getElementById('upload-status');
+    const previewImage = document.getElementById('preview-image');
+
+    try {
+        const response = await fetch('/api/delete-profile-pic', {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            previewImage.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bW9kZWx8ZW58MHx8MHx8fDA%3D';
+            statusDiv.innerHTML = '<span class="text-green-500">Profile picture removed</span>';
+        } else {
+            throw new Error(data.message || 'Delete failed');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        statusDiv.innerHTML = `<span class="text-red-500">${error.message}</span>`;
+    }
+}
+</script>
+</body>
+</html>
